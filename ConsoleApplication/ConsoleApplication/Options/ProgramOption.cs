@@ -135,6 +135,56 @@ namespace ConsoleApplication.Options
                 _timeEnd = value;
             }
         }
+        /// <summary>
+        /// Метод для парсинга аргументов
+        /// </summary>
+        /// <param name="args">Строка содержащая аргументы и их значения</param>
+        /// <returns>Созданный класс с аргументами</returns>
+        /// <exception cref="ArgumentException">Если передан неизвестный аргумент</exception>
+        /// <exception cref="ArithmeticException">Если не у каждого аргумента есть значение</exception>
+        public static ProgramOption ParseOptions(string[] args)
+        {
+            var options = new ProgramOption();
+
+            var argumentHandlers = new Dictionary<string, Action<string>>
+            {
+                { "--file-log", value => options.LogFile = value },
+                { "--file-output", value => options.OutputFile = value },
+                { "--address-start", value => options.AddressStart = value },
+                { "--address-mask", value => options.AddressMask = value },
+                { "--time-start", value => options.TimeStart = DateParse(value) },
+                { "--time-end", value => options.TimeEnd = DateParse(value) }
+            };
+
+            for (var i = 0; i < args.Length; i += 2)
+            {
+                var argName = args[i];
+
+                if (!argumentHandlers.ContainsKey(argName))
+                    throw new ArgumentException($"Argument with name - {argName} is not exist.");
+
+                var argValueIndex = i + 1;
+
+                if (argValueIndex >= args.Length)
+                    throw new ArithmeticException("Not all argument have a value.");
+
+                argumentHandlers[argName](args[argValueIndex]);
+            }
+
+            return options;
+        }
+        /// <summary>
+        /// Метод для парсинга строки формата dd.MM.yyyy в дату 
+        /// </summary>
+        /// <param name="date">строка фомрата dd.MM.yyyy</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException">Если строка не корректная</exception>
+        private static DateTime DateParse(string date)
+        {
+            if (DateTime.TryParseExact(date, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+                return result;
+            else
+                throw new ArgumentException($"Argument - {date} is incorrect.");
         }
     }
 }
