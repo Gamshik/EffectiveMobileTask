@@ -7,7 +7,7 @@ namespace ConsoleApplication.Comparers
         public int Compare(IPAddress? firstAddress, IPAddress? secondAddress)
         {
             if (firstAddress == null || secondAddress == null)
-                throw new ArgumentNullException($"IPAddress argument can`t be is null.");
+                throw new ArgumentNullException("IPAddress argument can`t be is null.");
 
             int result;
 
