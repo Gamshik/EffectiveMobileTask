@@ -1,5 +1,4 @@
-﻿using ConsoleApplication.OptionExtensions;
-using ConsoleApplication.Options;
+﻿using ConsoleApplication.Options;
 
 namespace ConsoleApplication
 {

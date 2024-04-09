@@ -136,6 +136,18 @@ namespace ConsoleApplication.Options
             }
         }
         /// <summary>
+        /// Метод для проверки наличия обязательных параметров в классе
+        /// </summary>
+        /// <param name="option">Класс для валидации</param>
+        /// <returns>Валидный/Невалидный</returns>
+        public bool IsValid()
+        {
+            return !string.IsNullOrWhiteSpace(LogFile)
+                && !string.IsNullOrWhiteSpace(OutputFile)
+                && TimeStart.HasValue
+                && TimeEnd.HasValue;
+        }
+        /// <summary>
         /// Метод для парсинга аргументов
         /// </summary>
         /// <param name="args">Строка содержащая аргументы и их значения</param>
