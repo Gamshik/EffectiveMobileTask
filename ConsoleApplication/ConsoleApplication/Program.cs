@@ -120,8 +120,6 @@ namespace ConsoleApplication
                 Console.WriteLine($"Argument format is incorrect: {formatEx.Message}");
                 return;
             }
-
-            Console.WriteLine("Success!");
         }
     }
 }
