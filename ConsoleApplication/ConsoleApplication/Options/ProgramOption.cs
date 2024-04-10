@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Net;
 
 namespace ConsoleApplication.Options
 {
@@ -15,11 +16,11 @@ namespace ConsoleApplication.Options
         /// <summary>
         /// Нижняя граница диапазона адресов
         /// </summary>
-        private string _addressStart;
+        private IPAddress _addressStart;
         /// <summary>
-        /// Маска подсети
+        /// Верхняя граница диапазона адресов
         /// </summary>
-        private string _addressMask;
+        private int _addressEnd;
         /// <summary>
         /// Нижняя граница временного интервала
         /// </summary>
@@ -68,7 +69,7 @@ namespace ConsoleApplication.Options
         /// Нижняя граница диапазона адресов
         /// </summary>
         /// <exception cref="ArgumentNullException">Если значение является пустым или ранво null</exception>
-        public string AddressStart
+        public IPAddress AddressStart
         {
             get
             {
@@ -83,24 +84,27 @@ namespace ConsoleApplication.Options
             }
         }
         /// <summary>
-        /// Маска подсети
+        /// Верхняя граница диапазона адресов
         /// </summary>
-        /// <exception cref="ArgumentNullException">Если значение является пустым или ранво null</exception>
         /// <exception cref="Exception">Если нижняя граница диапазона адрессов не инитиализированна</exception>
-        public string AddressMask
+        /// <exception cref="ArgumentOutOfRangeException">Если граница начального диапазона больше, чем конечного</exception>
+        public int AddressEnd
         {
             get
             {
-                return _addressMask;
+                return _addressEnd;
             }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
-                    throw new ArgumentNullException("Address mask argument is incorrect.");
-                else if (string.IsNullOrEmpty(_addressStart))
-                    throw new Exception("To initialize address mask options, start address must be initialized.");
+                if (_addressStart == null)
+                    throw new Exception("To initialize address end options, start address must be initialized.");
 
-                _addressMask = value;
+                var addressStartOctets = _addressStart.GetAddressBytes();
+
+                if (addressStartOctets[0] >= value)
+                    throw new ArgumentOutOfRangeException("Address start can`t be greater than address end.");
+
+                _addressEnd = value;
             }
         }
         /// <summary>
@@ -162,8 +166,8 @@ namespace ConsoleApplication.Options
             {
                 { "--file-log", value => options.LogFile = value },
                 { "--file-output", value => options.OutputFile = value },
-                { "--address-start", value => options.AddressStart = value },
-                { "--address-mask", value => options.AddressMask = value },
+                { "--address-start", value => options.AddressStart = IpAddressParse(value) },
+                { "--address-mask", value => options.AddressEnd = IpAddressEndParseByMask(value) },
                 { "--time-start", value => options.TimeStart = DateParse(value) },
                 { "--time-end", value => options.TimeEnd = DateParse(value) }
             };
@@ -186,10 +190,10 @@ namespace ConsoleApplication.Options
             return options;
         }
         /// <summary>
-        /// Метод для парсинга строки формата dd.MM.yyyy в дату 
+        /// Парсинг строки формата dd.MM.yyyy в дату 
         /// </summary>
-        /// <param name="date">строка фомрата dd.MM.yyyy</param>
-        /// <returns></returns>
+        /// <param name="date">Строка фомрата dd.MM.yyyy</param>
+        /// <returns>Полученную дату</returns>
         /// <exception cref="ArgumentException">Если строка не корректная</exception>
         private static DateTime DateParse(string date)
         {
@@ -197,6 +201,39 @@ namespace ConsoleApplication.Options
                 return result;
             else
                 throw new ArgumentException($"Argument - {date} is incorrect.");
+        }
+        /// <summary>
+        /// Парсинг строки в ip адресс
+        /// </summary>
+        /// <param name="ipAddress">Строка содержащая ip адресс</param>
+        /// <returns>Полученный ip адресс</returns>
+        /// <exception cref="ArgumentException">Если строка не корректная</exception>
+        private static IPAddress IpAddressParse(string ipAddress)
+        {
+            if (IPAddress.TryParse(ipAddress, out var result))
+                return result;
+            else
+                throw new ArgumentException($"Argument - {ipAddress} is incorrect.");
+        }
+        /// <summary>
+        /// Получение верхней границы диапазона адрессов по маске подсети
+        /// </summary>
+        /// <param name="mask">Маска подсети</param>
+        /// <returns>Границу верхнего диапазона адресов</returns>
+        /// <exception cref="ArgumentException">Если маска задана некорректно</exception>
+        private static int IpAddressEndParseByMask(string mask)
+        {
+            switch (mask)
+            {
+                case "255.0.0.0":
+                    return 127;
+                case "255.255.0.0":
+                    return 191;
+                case "255.255.255.0":
+                    return 223;
+                default:
+                    throw new ArgumentException($"Subnet mask - {mask} is incorrect.");
+            }
         }
     }
 }
