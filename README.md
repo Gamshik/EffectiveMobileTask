@@ -1,4 +1,4 @@
-# EffectiveMobileTask
+# EffectiveMobile Task
 
 ## Задание
 
