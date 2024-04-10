@@ -193,6 +193,18 @@ namespace ConsoleApplication.Options
             return options;
         }
         /// <summary>
+        /// Сравнение двух экземпляров данного класса классов
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns>True - если классы равны, False - в противном случае</returns>
+        public override bool Equals(object? obj)
+        {
+            if (obj == null || obj is not ProgramOption)
+                return false;
+            ProgramOption other = obj as ProgramOption;
+            return IsEquals(other);
+        }
+        /// <summary>
         /// Парсинг строки формата dd.MM.yyyy в дату 
         /// </summary>
         /// <param name="date">Строка фомрата dd.MM.yyyy</param>
@@ -237,6 +249,20 @@ namespace ConsoleApplication.Options
                 default:
                     throw new ArgumentException($"Subnet mask - {mask} is incorrect.");
             }
+        }
+        /// <summary>
+        /// Логика сравнения экземпляров класса
+        /// </summary>
+        /// <param name="other">Экземпляр класса для сравнения</param>
+        /// <returns>True - если классы равны, False - в противном случае</returns>
+        private bool IsEquals(ProgramOption other)
+        {
+            return LogFile == other.LogFile
+                && OutputFile == other.OutputFile
+                && IpAddressStart == other.IpAddressStart
+                && IpAddressEnd == other.IpAddressEnd
+                && TimeStart == other.TimeStart
+                && TimeEnd == other.TimeEnd;
         }
     }
 }
