@@ -8,18 +8,9 @@ namespace ConsoleApplication
     public class Program
     {
         /// <summary>
-        /// Словарь: key - ip адресс, value - количество обращений к нему
-        /// </summary>
-        private static Dictionary<IPAddress, int> _ipAddressCount = new Dictionary<IPAddress, int>();
-        /// <summary>
-        /// Переменная компаратор для ip адрессов
-        /// </summary>
-        private static IPAddressComparer _ipAddressComparer = new IPAddressComparer();
-        /// <summary>
         /// Переменная содержащая значения переданных аргументов
         /// </summary>
         private static ProgramOption _options;
-
         static async Task Main(string[] args)
         {
             try
@@ -45,39 +36,11 @@ namespace ConsoleApplication
 
             try
             {
-                using StreamReader reader = new StreamReader(_options.LogFile);
+                var lines = await File.ReadAllLinesAsync(_options.LogFile);
 
-                string? line;
+                var ipAddressCount = GetDictionaryIpAddressCountByOptions(lines, _options);
 
-                while ((line = await reader.ReadLineAsync()) != null)
-                {
-                    var lines = line.Split(':', 2);
-
-                    DateTime requestTime = DateTime.ParseExact(lines[1], "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-
-                    if (requestTime >= _options.TimeStart && requestTime <= _options.TimeEnd)
-                    {
-                        IPAddress ipAddress = IPAddress.Parse(lines[0]);
-
-                        if (_options.IpAddressStart != null && _ipAddressComparer.Compare(ipAddress, _options.IpAddressStart) < 0)
-                            continue;
-
-                        if (_options.IpAddressEnd != null)
-                        {
-                            var ipAddressEnd = IPAddress.Parse($"{_options.IpAddressEnd}.0.0.0");
-
-                            if (_ipAddressComparer.Compare(ipAddress, ipAddressEnd) > 0)
-                                continue;
-                        }
-
-                        if (_ipAddressCount.ContainsKey(ipAddress))
-                            _ipAddressCount[ipAddress]++;
-                        else
-                            _ipAddressCount.Add(ipAddress, 1);
-                    }
-                }
-
-                if (_ipAddressCount.Count == 0)
+                if (ipAddressCount.Count == 0)
                 {
                     Console.WriteLine("No matching ip addresses found.");
                     return;
@@ -85,7 +48,7 @@ namespace ConsoleApplication
 
                 using StreamWriter writer = new StreamWriter(_options.OutputFile, false);
 
-                foreach (var item in _ipAddressCount)
+                foreach (var item in ipAddressCount)
                 {
                     await writer.WriteLineAsync($"{item.Key} {item.Value}");
                 }
@@ -120,6 +83,42 @@ namespace ConsoleApplication
                 Console.WriteLine($"Argument format is incorrect: {formatEx.Message}");
                 return;
             }
+        }
+        public static Dictionary<IPAddress, int> GetDictionaryIpAddressCountByOptions(string[] logs, ProgramOption options)
+        {
+            var ipAddressComparer = new IPAddressComparer();
+
+            var ipAddressCount = new Dictionary<IPAddress, int>();
+
+            foreach (var log in logs)
+            {
+                var logParts = log.Split(':', 2);
+
+                DateTime requestTime = DateTime.ParseExact(logParts[1], "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+
+                if (requestTime >= options.TimeStart && requestTime <= options.TimeEnd)
+                {
+                    IPAddress ipAddress = IPAddress.Parse(logParts[0]);
+
+                    if (options.IpAddressStart != null && ipAddressComparer.Compare(ipAddress, options.IpAddressStart) < 0)
+                        continue;
+
+                    if (options.IpAddressEnd != null)
+                    {
+                        var ipAddressEnd = IPAddress.Parse($"{options.IpAddressEnd}.0.0.0");
+
+                        if (ipAddressComparer.Compare(ipAddress, ipAddressEnd) > 0)
+                            continue;
+                    }
+
+                    if (ipAddressCount.ContainsKey(ipAddress))
+                        ipAddressCount[ipAddress]++;
+                    else
+                        ipAddressCount.Add(ipAddress, 1);
+                }
+            }
+
+            return ipAddressCount;
         }
     }
 }
