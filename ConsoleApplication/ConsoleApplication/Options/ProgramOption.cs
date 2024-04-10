@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using ConsoleApplication.Comparers;
+using System.Globalization;
 using System.Net;
 
 namespace ConsoleApplication.Options
@@ -16,11 +17,11 @@ namespace ConsoleApplication.Options
         /// <summary>
         /// Нижняя граница диапазона адресов
         /// </summary>
-        private IPAddress _addressStart;
+        private IPAddress _ipAddressStart;
         /// <summary>
         /// Верхняя граница диапазона адресов
         /// </summary>
-        private int _addressEnd;
+        private int? _ipAddressEnd;
         /// <summary>
         /// Нижняя граница временного интервала
         /// </summary>
@@ -69,15 +70,15 @@ namespace ConsoleApplication.Options
         /// Нижняя граница диапазона адресов
         /// </summary>
         /// <exception cref="ArgumentNullException">Если значение является пустым или ранво null</exception>
-        public IPAddress AddressStart
+        public IPAddress IpAddressStart
         {
             get
             {
-                return _addressStart;
+                return _ipAddressStart;
             }
             set
             {
-                _addressStart = value;
+                _ipAddressStart = value;
             }
         }
         /// <summary>
@@ -85,15 +86,14 @@ namespace ConsoleApplication.Options
         /// </summary>
         /// <exception cref="Exception">Если нижняя граница диапазона адрессов не инитиализированна</exception>
         /// <exception cref="ArgumentOutOfRangeException">Если граница начального диапазона больше, чем конечного</exception>
-        public int AddressEnd
+        public int? IpAddressEnd
         {
             get
             {
-                return _addressEnd;
+                return _ipAddressEnd;
             }
-            set
             {
-                if (_addressStart == null)
+                if (IpAddressStart == null)
                     throw new Exception("To initialize address end options, start address must be initialized.");
 
                 var addressStartOctets = _addressStart.GetAddressBytes();
@@ -101,7 +101,7 @@ namespace ConsoleApplication.Options
                 if (addressStartOctets[0] >= value)
                     throw new ArgumentOutOfRangeException("Address start can`t be greater than address end.");
 
-                _addressEnd = value;
+                _ipAddressEnd = value;
             }
         }
         /// <summary>
@@ -130,7 +130,7 @@ namespace ConsoleApplication.Options
             }
             set
             {
-                if (value < _timeStart)
+                if (value < TimeStart)
                     throw new ArgumentOutOfRangeException("Time end can`t be less than time start option.");
 
                 _timeEnd = value;
@@ -163,8 +163,8 @@ namespace ConsoleApplication.Options
             {
                 { "--file-log", value => options.LogFile = value },
                 { "--file-output", value => options.OutputFile = value },
-                { "--address-start", value => options.AddressStart = IpAddressParse(value) },
-                { "--address-mask", value => options.AddressEnd = IpAddressEndParseByMask(value) },
+                { "--address-start", value => options.IpAddressStart = IpAddressParse(value) },
+                { "--address-mask", value => options.IpAddressEnd = IpAddressEndParseByMask(value) },
                 { "--time-start", value => options.TimeStart = DateParse(value) },
                 { "--time-end", value => options.TimeEnd = DateParse(value) }
             };
