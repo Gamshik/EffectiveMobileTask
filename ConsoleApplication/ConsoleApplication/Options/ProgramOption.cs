@@ -171,6 +171,10 @@ namespace ConsoleApplication.Options
                 { "--time-end", value => options.TimeEnd = DateParse(value) }
             };
 
+            // проверка на единоразовое использование аргументов
+            if (argumentHandlers.Keys.Any(argument => args.Where(arg => arg == argument).Count() > 1))
+                throw new ArgumentException($"An argument can only be used once.");
+
             for (var i = 0; i < args.Length; i += 2)
             {
                 var argName = args[i];
@@ -181,7 +185,7 @@ namespace ConsoleApplication.Options
                 var argValueIndex = i + 1;
 
                 if (argValueIndex >= args.Length)
-                    throw new ArithmeticException("Not all argument have a value.");
+                    throw new ArgumentException("Not all argument have a value.");
 
                 argumentHandlers[argName](args[argValueIndex]);
             }
