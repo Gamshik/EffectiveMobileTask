@@ -77,9 +77,6 @@ namespace ConsoleApplication.Options
             }
             set
             {
-                if (string.IsNullOrWhiteSpace(value))
-                    throw new ArgumentNullException("Address start argument is incorrect.");
-
                 _addressStart = value;
             }
         }
