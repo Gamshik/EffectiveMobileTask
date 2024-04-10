@@ -181,7 +181,10 @@ namespace ConsoleApplication.Options
                 var argValueIndex = i + 1;
 
                 if (argValueIndex >= args.Length)
-                    throw new ArithmeticException("Not all argument have a value.");
+                    throw new ArgumentException("Not all argument have a value.");
+
+                if (argumentHandlers[argName] != null)
+                    throw new ArgumentException($"An argument {argName} can only be used once.");
 
                 argumentHandlers[argName](args[argValueIndex]);
             }
