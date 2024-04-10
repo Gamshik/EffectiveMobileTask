@@ -14,7 +14,7 @@ namespace ConsoleApplication
         /// <summary>
         /// Переменная компаратор для ip адрессов
         /// </summary>
-        private static IPAddressComparer _comparer = new IPAddressComparer();
+        private static IPAddressComparer _ipAddressComparer = new IPAddressComparer();
         /// <summary>
         /// Переменная содержащая значения переданных аргументов
         /// </summary>
@@ -28,7 +28,7 @@ namespace ConsoleApplication
             }
             catch (ArgumentException argumentEx)
             {
-                Console.WriteLine($"At parsing options error occured: {argumentEx.Message}" );
+                Console.WriteLine($"At parsing options error occured: {argumentEx.Message}");
                 return;
             }
             catch (Exception ex)
@@ -58,6 +58,17 @@ namespace ConsoleApplication
                     if (requestTime >= _options.TimeStart && requestTime <= _options.TimeEnd)
                     {
                         IPAddress ipAddress = IPAddress.Parse(lines[0]);
+
+                        if (_options.IpAddressStart != null && _ipAddressComparer.Compare(ipAddress, _options.IpAddressStart) < 0)
+                            continue;
+
+                        if (_options.IpAddressEnd != null)
+                        {
+                            var ipAddressEnd = IPAddress.Parse($"{_options.IpAddressEnd}.0.0.0");
+
+                            if (_ipAddressComparer.Compare(ipAddress, ipAddressEnd) > 0)
+                                continue;
+                        }
 
                         if (_ipAddressCount.ContainsKey(ipAddress))
                             _ipAddressCount[ipAddress]++;

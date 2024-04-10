@@ -100,7 +100,7 @@ namespace ConsoleApplication.Options
                 var ipAddressComparer = new IPAddressComparer();
                 var ipAddressEnd = IpAddressParse($"{value}.0.0.0");
 
-                if (ipAddressComparer.Compare(IpAddressStart, ipAddressEnd) > 0) 
+                if (ipAddressComparer.Compare(IpAddressStart, ipAddressEnd) > 0)
                     throw new ArgumentOutOfRangeException("Address start can`t be greater than address end.");
 
                 _ipAddressEnd = value;
