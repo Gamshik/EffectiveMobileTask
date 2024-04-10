@@ -92,13 +92,15 @@ namespace ConsoleApplication.Options
             {
                 return _ipAddressEnd;
             }
+            private set
             {
                 if (IpAddressStart == null)
                     throw new Exception("To initialize address end options, start address must be initialized.");
 
-                var addressStartOctets = _addressStart.GetAddressBytes();
+                var ipAddressComparer = new IPAddressComparer();
+                var ipAddressEnd = IpAddressParse($"{value}.0.0.0");
 
-                if (addressStartOctets[0] >= value)
+                if (ipAddressComparer.Compare(IpAddressStart, ipAddressEnd) > 0) 
                     throw new ArgumentOutOfRangeException("Address start can`t be greater than address end.");
 
                 _ipAddressEnd = value;
