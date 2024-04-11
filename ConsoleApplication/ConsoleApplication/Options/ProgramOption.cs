@@ -260,9 +260,19 @@ namespace ConsoleApplication.Options
         /// <returns>True - если классы равны, False - в противном случае</returns>
         private bool IsEquals(ProgramOption other)
         {
+            if ((IpAddressStart == null && other.IpAddressStart != null) || (IpAddressStart != null && other.IpAddressStart == null))
+                return false;
+
+            if (IpAddressStart != null && other.IpAddressStart != null)
+            {
+                var ipAddressComparer = new IPAddressComparer();
+
+                if (ipAddressComparer.Compare(IpAddressStart, other.IpAddressStart) != 0)
+                    return false;
+            }
+
             return LogFile == other.LogFile
                 && OutputFile == other.OutputFile
-                && IpAddressStart == other.IpAddressStart
                 && IpAddressEnd == other.IpAddressEnd
                 && TimeStart == other.TimeStart
                 && TimeEnd == other.TimeEnd;
