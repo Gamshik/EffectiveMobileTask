@@ -92,10 +92,13 @@ namespace ConsoleApplication.Options
             {
                 return _ipAddressEnd;
             }
-            private set
+            set
             {
                 if (IpAddressStart == null)
                     throw new Exception("To initialize address end options, start address must be initialized.");
+
+                if (value != 127 && value != 191 && value != 223)
+                    throw new ArgumentException("Upper border is incorrect.");
 
                 var ipAddressComparer = new IPAddressComparer();
                 var ipAddressEnd = IpAddressParse($"{value}.0.0.0");

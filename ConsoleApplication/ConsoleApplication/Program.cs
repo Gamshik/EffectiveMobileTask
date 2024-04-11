@@ -83,6 +83,8 @@ namespace ConsoleApplication
                 Console.WriteLine($"Argument format is incorrect: {formatEx.Message}");
                 return;
             }
+
+            Console.WriteLine("File had been created!");
         }
         public static Dictionary<IPAddress, int> GetDictionaryIpAddressCountByOptions(string[] logs, ProgramOption options)
         {
