@@ -141,6 +141,22 @@ namespace ConsoleApplication.Options
                 _timeEnd = value;
             }
         }
+        public ProgramOption() { }
+        public ProgramOption(string logFile, string outputFile, DateTime timeStart, DateTime timeEnd)
+        {
+            LogFile = logFile;
+            OutputFile = outputFile;
+            TimeStart = timeStart;
+            TimeEnd = timeEnd;
+        }
+        public ProgramOption(string logFile, string outputFile, DateTime timeStart, DateTime timeEnd, IPAddress ipAddressStart) : this(logFile, outputFile, timeStart, timeEnd)
+        {
+            IpAddressStart = ipAddressStart;
+        }
+        public ProgramOption(string logFile, string outputFile, DateTime timeStart, DateTime timeEnd, IPAddress ipAddressStart, int ipAddressEnd) : this(logFile, outputFile, timeStart, timeEnd, ipAddressStart)
+        {
+            IpAddressEnd = ipAddressEnd;
+        }
         /// <summary>
         /// Метод для проверки наличия обязательных параметров в классе
         /// </summary>
